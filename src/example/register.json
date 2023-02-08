@@ -1,0 +1,8 @@
+{
+    "id": 1,
+    "action": "REGISTER",
+    "data": {
+        "email": "test@gmail.com",
+        "password": "secretpassword"
+    }
+}

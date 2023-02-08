@@ -1,0 +1,43 @@
+import { RedisClientType } from "@redis/client"
+import { createClient } from "redis";
+ 
+export const { REDIS_URL = 'redis://localhost:6379' } = process.env;
+
+let reconnectInvocationCounter = 0;
+
+/**
+ * @see https://github.com/redis/node-redis/issues/1993 reconnect strategy
+ */
+const redisClient: RedisClientType = createClient({
+    url: REDIS_URL,
+    legacyMode: true,
+    socket: { 
+        keepAlive: false,
+        // reconnectStrategy: (retries) => {
+        //     reconnectInvocationCounter++;
+            
+        //     console.log(retries, 'reconnect times' + reconnectInvocationCounter);
+            
+        //     if (retries < 2) {
+        //         return 0;
+        //     }
+
+        //     return new Error("No more retries remaining, giving up.");
+        // }
+    }
+});
+
+async function redisHelper (): Promise<RedisClientType> {
+    redisClient.on('connect', () => console.log('Connected!'));
+
+    redisClient.on('error', (error) => console.log('error', error));
+
+    redisClient.on('reconnecting', () => console.log('Redis reconnecting'))
+
+    redisClient.on('end', () => console.log('Redis end'));
+    
+    await redisClient.connect();
+    return redisClient;
+}
+
+export default redisHelper();
